@@ -1,9 +1,20 @@
+import logging
 from glue_spark_etl.config_loader import ConfigLoader
 from glue_spark_etl.driver import SparkDriver
 from glue_spark_etl.extractors.s3_local_unified_extractor import S3LocalUnifiedExtractor
 from glue_spark_etl.extractors.jdbc_extractor import JDBCExtractor
 from glue_spark_etl.transformer import Transformer
 from glue_spark_etl.loader import Loader
+
+
+# Configuración del logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # Puedes ajustar el nivel a DEBUG o ERROR según sea necesario
+ch = logging.StreamHandler()  # Manejador para imprimir en consola
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 class Executor:
@@ -71,15 +82,22 @@ class Executor:
         """
         Orquesta la ejecución de los pasos definidos en la configuración.
         """
+
+        logger.info("Iniciando ejecución del flujo ETL...")
+
         # Cargar configuración
         self.__load_config()
+        logger.info("Configuración cargada.")
 
         # Inicializar Sesion Spark
         self.__initialize_spark_session()
+        logger.info("Sesión Spark inicializada.")
 
         # Ejecutar los pasos en orden
         for step in self.config.get("steps", []):
             step_type = step.get("step")
+            step_name = step.get('name')
+            logger.info(f"Ejecutando paso: {step_name}")
             if step_type == "extract":
                 self.__execute_extraction(step)
             elif step_type == "transform":
@@ -88,6 +106,9 @@ class Executor:
                 self.__execute_loading(step)
             else:
                 raise ValueError(f"Tipo de paso desconocido: {step_type}")
+            logger.info(f"Ejecucción terminada paso : {step_name}")
 
         # parar sesion de spark
+        logger.info("Finalizando sesión Spark...")
         self.spark_driver.stop()
+        logger.info("Ejecución completada.")
