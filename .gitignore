@@ -34,4 +34,5 @@ venv/
 .idea/
 *.iml
 
+# tests output table
 tests/output/
