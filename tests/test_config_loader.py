@@ -14,7 +14,8 @@ def test_load_valid_config():
         name: source_table_db
         options:
           host: example.com
-          database: my_database
+          db_type: mysql
+          db_name: my_database
           table: my_table
           user_key: user_key_1
           password_key: password_key_1 

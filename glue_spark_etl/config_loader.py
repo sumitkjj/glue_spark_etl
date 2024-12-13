@@ -136,7 +136,7 @@ class ConfigLoader:
 
         # Validar las opciones necesarias según el tipo de origen
         if source_type == "jdbc":
-            required_keys = ["host", "database", "table", "user_key", "password_key"]
+            required_keys = ["host", "db_type", "db_name", "table", "user_key", "password_key"]
         elif source_type in {"s3", "local"}:
             required_keys = ["path", "format"]
         else:
@@ -179,6 +179,15 @@ class ConfigLoader:
                     raise ValueError(
                         f"El delimitador es obligatorio para el formato 'csv' en el paso de extracción '{step.get('name')}'."
                     )
+        else:
+            # Validar el campo db_type
+            db_type = options.get("db_type")
+            if db_type not in {"mysql", "postgresql", "oracle", "sqlserver"}:
+                raise ValueError(
+                    f"El valor de 'db_type' en el paso de extracción '{step.get('name')}' es inválido. "
+                    "Valores válidos: 'mysql', 'postgresql', 'oracle', 'sqlserver'."
+                )
+
 
     @staticmethod
     def __validate_transform_step(step: dict):
