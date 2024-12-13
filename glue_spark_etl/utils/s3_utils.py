@@ -50,6 +50,33 @@ class S3Utils:
                 raise e
 
     @staticmethod
+    def prefix_exists(path: str) -> bool:
+        """
+        Verifica si un prefijo existe en S3.
+
+        Args:
+            path (str): Ruta completa en formato 's3://bucket_name/prefix'.
+
+        Returns:
+            bool: True si el prefijo existe en el bucket, False si no.
+        """
+        try:
+            # Obtener el bucket y el prefijo
+            bucket_name, prefix = S3Utils.parse_s3_path(path)
+
+            # Usar list_objects_v2 para comprobar si hay objetos con el prefijo
+            response = S3Utils.s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix, Delimiter='/')
+
+            # Verifica si se encontraron objetos o subdirectorios (prefijos comunes)
+            if 'Contents' in response or 'CommonPrefixes' in response:
+                return True
+            else:
+                return False
+        except ClientError as e:
+            print(f"Error al comprobar el prefijo en S3: {e}")
+            return False
+
+    @staticmethod
     def get_file_content(file_path: str) -> str:
         """
         Devuelve el contenido de un archivo de S3.

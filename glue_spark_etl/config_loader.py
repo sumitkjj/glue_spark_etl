@@ -188,7 +188,6 @@ class ConfigLoader:
                     "Valores válidos: 'mysql', 'postgresql', 'oracle', 'sqlserver'."
                 )
 
-
     @staticmethod
     def __validate_transform_step(step: dict):
         """
@@ -269,17 +268,17 @@ class ConfigLoader:
             )
 
         # Validar que el path existe para s3 o local
-        path = options["path"]
+        path = options['path']
         source_type = step["type"]
         if source_type == "local":
             # Validar que el path local existe
-            if not Path(path).is_file():
+            if not Path(path).is_dir():
                 raise ValueError(
                     f"El path: '{path}' especificado en las opciones del paso de extracción '{step.get('name')}' "
                     f"no existe."
                 )
         elif source_type == "s3" and not self.test:
-            if not S3Utils.file_exists(path):
+            if not S3Utils.prefix_exists(path):
                 raise ValueError(
                     f"El path: '{path}' especificado en las opciones del paso de extracción '{step.get('name')}' "
                     f"no existe en S3."

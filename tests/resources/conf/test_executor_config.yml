@@ -1,0 +1,37 @@
+steps:
+  - step: extract
+    type: local
+    name: csv_persons_table
+    options:
+      path: tests/resources/files/persons.csv
+      format: csv
+      delimiter: ","
+  - step: extract
+    type: local
+    name: parquet_persons_table
+    options:
+      path: tests/resources/files/persons.parquet
+      format: parquet
+  - step: transform
+    name: csv_columns_filtered_table
+    sql: SELECT id,name FROM csv_persons_table WHERE age > 10
+  - step: transform
+    name: parquet_transformed_columns_table
+    sql: "SELECT Id as id, Age as age, City as city FROM parquet_persons_table"
+  - step: transform
+    name: join_table
+    sql: "
+      SELECT c.id, name, age, city
+      FROM csv_columns_filtered_table c
+      JOIN parquet_transformed_columns_table p
+      ON c.id=p.id
+    "
+  - step: load
+    type: local
+    name: join_output_table
+    origin_view: join_table
+    options:
+      path: 'tests/output'
+      format: csv
+      mode: overwrite
+      delimiter: ";"

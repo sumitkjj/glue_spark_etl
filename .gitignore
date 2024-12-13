@@ -33,3 +33,5 @@ venv/
 # Intellij
 .idea/
 *.iml
+
+tests/output/
