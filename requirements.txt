@@ -1,0 +1,4 @@
+PyYAML==6.0.2
+pytest
+boto3
+pyspark==3.5.2
